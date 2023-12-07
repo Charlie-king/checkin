@@ -11,7 +11,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    node: '16.x' 
+
     # if: github.ref == 'refs/heads/master'
 
     steps:
