@@ -11,11 +11,12 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    node: '16.x' 
     # if: github.ref == 'refs/heads/master'
 
     steps:
       - name: Checkout master
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
           # ref: master
