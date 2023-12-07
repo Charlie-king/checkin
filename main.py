@@ -1,38 +1,36 @@
-import requests, json, re, os
-
-
-# 从环境变量获取参数
-URL = os.environ.get('URL')
-ACCOUNTS = json.loads(os.environ.get('ACCOUNTS'))  
-PUSH_TOKEN = os.environ.get('PUSH_TOKEN')
+import requests
+import os 
+import json
 
 session = requests.Session()
 
-def sign(email, passwd):
-  login_url = f"{URL}/auth/login"
-  check_url = f"{URL}/user/checkin"
+def sign(email, password):
 
-  data = {"email": email, "passwd": passwd}
-  resp = session.post(login_url, json=data)
+  login_url = f"{url}/login"
+  checkin_url = f"{url}/checkin"
 
-  resp = session.post(check_url)
-  return resp.json()["msg"]
+  # 为每个账号单独登录
+  data = {'email': email, 'password': password}  
+  session.post(login_url, data=data)
+
+  # 签到
+  result = session.post(checkin_url, json={'email': email}).json()['message']
+
+  print(f'{email} 签到结果: {result}')
+
+  return result
 
 results = {}
-for account in ACCOUNTS:
-  email = account["email"]
-  passwd = account["passwd"]  
+for account in accounts:
 
-  result = sign(email, passwd)
+  email = account['email'] 
+  password = account['password']
+
+  result = sign(email, password)
+
+  # 记录结果
   results[email] = result
 
-  print(f"{email} 签到结果: {result}")
-
-desp = ""  
-for email, status in results.items():
-  desp += f"{email} 签到结果:{status}\n"
-
-if PUSH_TOKEN:
+# 推送
+if os.environ.get('SCKEY'):
   # 推送代码
-
-print("签到任务完成")
