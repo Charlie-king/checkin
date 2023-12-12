@@ -11,12 +11,11 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     # if: github.ref == 'refs/heads/master'
 
     steps:
       - name: Checkout master
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
         with:
           fetch-depth: 0
           # ref: master
@@ -37,8 +36,8 @@ jobs:
       - name: Run sign
         env:
           URL: ${{ secrets.URL }}
-          ACCOUNTS: ${{ secrets.ACCOUNTS }} 
           SCKEY: ${{ secrets.SCKEY }}
-        
+          EMAIL: ${{ secrets.EMAIL }}
+          PASSWD: ${{ secrets.PASSWD }}
         run: |
           python3 ./main.py
