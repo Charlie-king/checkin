@@ -1,36 +1,43 @@
-import requests
-import os 
-import json
+import requests, json, re, os
 
-session = requests.Session()
+session = requests.session()
+# 机场的地址
+url = os.environ.get('URL')
+# 配置用户名（一般是邮箱）
+email = os.environ.get('EMAIL')
+# 配置用户名对应的密码 和上面的email对应上
+passwd = os.environ.get('PASSWD')
+# server酱
+SCKEY = os.environ.get('SCKEY')
 
-def sign(email, password):
+login_url = '{}/auth/login'.format(url)
+check_url = '{}/user/checkin'.format(url)
 
-  login_url = f"{url}/login"
-  checkin_url = f"{url}/checkin"
 
-  # 为每个账号单独登录
-  data = {'email': email, 'password': password}  
-  session.post(login_url, data=data)
-
-  # 签到
-  result = session.post(checkin_url, json={'email': email}).json()['message']
-
-  print(f'{email} 签到结果: {result}')
-
-  return result
-
-results = {}
-for account in accounts:
-
-  email = account['email'] 
-  password = account['password']
-
-  result = sign(email, password)
-
-  # 记录结果
-  results[email] = result
-
-# 推送
-if os.environ.get('SCKEY'):
-  # 推送代码
+header = {
+        'origin': url,
+        'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36'
+}
+data = {
+        'email': email,
+        'passwd': passwd
+}
+try:
+    print('进行登录...')
+    response = json.loads(session.post(url=login_url,headers=header,data=data).text)
+    print(response['msg'])
+    # 进行签到
+    result = json.loads(session.post(url=check_url,headers=header).text)
+    print(result['msg'])
+    content = result['msg']
+    # 进行推送
+    if SCKEY != '':
+        push_url = 'https://sctapi.ftqq.com/{}.send?title=机场签到&desp={}'.format(SCKEY, content)
+        requests.post(url=push_url)
+        print('推送成功')
+except:
+    content = '签到失败'
+    print(content)
+    if SCKEY != '':
+        push_url = 'https://sctapi.ftqq.com/{}.send?title=机场签到&desp={}'.format(SCKEY, content)
+        requests.post(url=push_url)
